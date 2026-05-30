@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sérgio Curtidas - Boost Grátis TikTok, Instagram e Facebook</title>
+    <style>
+        body { 
+            background-color: #0f0f13; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            padding-top: 60px; 
+            margin: 0;
+        }
+        .container { 
+            background: #17171f; 
+            padding: 40px 30px; 
+            border-radius: 15px; 
+            display: inline-block; 
+            width: 90%; 
+            max-width: 460px; 
+            box-shadow: 0px 8px 25px rgba(0,0,0,0.7); 
+            border: 1px solid #232330;
+        }
+        h1 {
+            color: #25d366;
+            margin-bottom: 5px;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+        p {
+            color: #a0a0b0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        input, select, button { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 12px 0; 
+            border-radius: 8px; 
+            border: 1px solid #2d2d3f; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: 0.3s;
+        }
+        input { 
+            background: #1e1e2a; 
+            color: white; 
+        }
+        input:focus {
+            border-color: #25d366;
+        }
+        select { 
+            background: #1e1e2a; 
+            color: white; 
+            cursor: pointer;
+        }
+        button { 
+            background: #25d366; 
+            color: #000000; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border: none;
+            margin-top: 15px;
+        }
+        button:hover { 
+            background: #1ebd54; 
+            transform: scale(1.02);
+        }
+        .timer { 
+            color: #ff4757; 
+            font-weight: bold; 
+            margin-top: 15px; 
+            padding: 10px;
+            background: rgba(255, 71, 87, 0.1);
+            border-radius: 6px;
+            display: none; 
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #555565;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 Sérgio Curtidas</h1>
+    <p>O maior impulsionador gratuito para suas redes sociais.</p>
+    
+    <form id="boostForm">
+        <label style="text-align: left; display: block; font-size: 12px; color: #888;" for="redeSocial">Escolha a Rede:</label>
+        <select id="redeSocial">
+            <option value="tiktok">TikTok (Curtidas)</option>
+            <option value="instagram">Instagram (Curtidas)</option>
+            <option value="facebook">Facebook (Reações)</option>
+        </select>
+        
+        <label style="text-align: left; display: block; font-size: 12px; color: #888;" for="postLink">Link da Publicação:</label>
+        <input type="url" id="postLink" placeholder="Cole o URL aqui..." required>
+        
+        <button type="submit" id="btnEnviar">ENVIAR CURTIDAS GRÁTIS</button>
+    </form>
+    
+    <div id="countdown" class="timer">
+        Sérgio Curtidas Proteção: Aguarde <span id="seconds">300</span> segundos para enviar novamente.
+    </div>
+
+    <div class="footer">
+        © 2026 Sérgio Curtidas. Todos os direitos reservados.
+    </div>
+</div>
+
+<script>
+    document.getElementById('boostForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnEnviar');
+        const timerDiv = document.getElementById('countdown');
+        const secondsSpan = document.getElementById('seconds');
+        
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
+        btn.style.background = "#555";
+        
+        // Simulação do envio (integração com o backend)
+        setTimeout(() => {
+            alert('Pedido processado com sucesso no sistema Sérgio Curtidas!');
+            
+            // Inicia o Cooldown de 5 minutos (300 segundos) igual ao Zefoy
+            let timeLeft = 300;
+            timerDiv.style.display = 'block';
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                secondsSpan.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerDiv.style.display = 'none';
+                    btn.disabled = false;
+                    btn.innerText = "ENVIAR CURTIDAS GRÁTIS";
+                    btn.style.background = "#25d366";
+                }
+            }, 1000);
+            
+        }, 2000);
+    });
+</script>
+
+</body>
+</html>
