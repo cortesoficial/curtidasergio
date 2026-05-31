@@ -1,0 +1,12 @@
+{
+  "name": "painel-geolocalizacao",
+  "version": "1.0.0",
+  "description": "Painel funcional de geolocalização e varredura de IP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
